@@ -1,84 +1,82 @@
 #include "bitstring.h"
 #include <stdexcept>
-#include <algorithm>
 
-BitString::BitString() {}
+BitString::BitString() : bits("") {}
 
-BitString::BitString(const std::string& str) {
+BitString::BitString(const std::string& str) : bits(str) {
     for (char c : str) {
-        if (c == '0') {
-            bits.push_back(0);
-        } else if (c == '1') {
-            bits.push_back(1);
-        } else {
-            throw std::invalid_argument("Битовая строка может содержать только 0 и 1");
+        if (c != '0' && c != '1') {
+            throw std::invalid_argument("Invalid bit string");
         }
     }
 }
 
-BitString::BitString(const BitString& other) {
-    bits = other.bits;
-}
-
-BitString::~BitString() {}
-
 BitString BitString::AND(const BitString& other) const {
-    BitString result;
-    size_t max_len = std::max(bits.size(), other.bits.size());
+    std::string result;
+    size_t max_len = std::max(bits.length(), other.bits.length());
 
     for (size_t i = 0; i < max_len; i++) {
-        unsigned char bit1 = (i < bits.size()) ? bits[i] : 0;
-        unsigned char bit2 = (i < other.bits.size()) ? other.bits[i] : 0;
-        result.bits.push_back(bit1 & bit2);
+        char bit1 = (i < bits.length()) ? bits[i] : '0';
+        char bit2 = (i < other.bits.length()) ? other.bits[i] : '0';
+
+        if (bit1 == '1' && bit2 == '1') {
+            result += '1';
+        } else {
+            result += '0';
+        }
     }
 
-    return result;
+    return BitString(result);
 }
 
 BitString BitString::OR(const BitString& other) const {
-    BitString result;
-    size_t max_len = std::max(bits.size(), other.bits.size());
+    std::string result;
+    size_t max_len = std::max(bits.length(), other.bits.length());
 
     for (size_t i = 0; i < max_len; i++) {
-        unsigned char bit1 = (i < bits.size()) ? bits[i] : 0;
-        unsigned char bit2 = (i < other.bits.size()) ? other.bits[i] : 0;
-        result.bits.push_back(bit1 | bit2);
+        char bit1 = (i < bits.length()) ? bits[i] : '0';
+        char bit2 = (i < other.bits.length()) ? other.bits[i] : '0';
+
+        if (bit1 == '1' || bit2 == '1') {
+            result += '1';
+        } else {
+            result += '0';
+        }
     }
 
-    return result;
+    return BitString(result);
 }
 
 BitString BitString::XOR(const BitString& other) const {
-    BitString result;
-    size_t max_len = std::max(bits.size(), other.bits.size());
+    std::string result;
+    size_t max_len = std::max(bits.length(), other.bits.length());
 
     for (size_t i = 0; i < max_len; i++) {
-        unsigned char bit1 = (i < bits.size()) ? bits[i] : 0;
-        unsigned char bit2 = (i < other.bits.size()) ? other.bits[i] : 0;
-        result.bits.push_back(bit1 ^ bit2);
+        char bit1 = (i < bits.length()) ? bits[i] : '0';
+        char bit2 = (i < other.bits.length()) ? other.bits[i] : '0';
+
+        if (bit1 != bit2) {
+            result += '1';
+        } else {
+            result += '0';
+        }
     }
 
-    return result;
+    return BitString(result);
 }
 
 BitString BitString::NOT() const {
-    BitString result;
-
-    for (unsigned char bit : bits) {
-        result.bits.push_back(bit ^ 1);
+    std::string result;
+    for (char bit : bits) {
+        if (bit == '1') {
+            result += '0';
+        } else {
+            result += '1';
+        }
     }
-
-    return result;
+    return BitString(result);
 }
 
 std::string BitString::toString() const {
-    std::string result;
-    for (unsigned char bit : bits) {
-        result += (bit == 0) ? '0' : '1';
-    }
-    return result;
-}
-
-size_t BitString::length() const {
-    return bits.size();
+    return bits;
 }
